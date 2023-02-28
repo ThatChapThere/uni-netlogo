@@ -118,27 +118,28 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go-table-driven-agent
-  ; add the latest percept to the state list
-  ask vacuums
-  [
-    set state insert-item (length state) (state) (loc-and-perceived-state)
+  if execute-table-action [
+    ask vacuums [
+      set table-agent-percepts insert-item (length table-agent-percepts) table-agent-percepts loc-and-perceived-state
+    ]
   ]
+  tick
 end
 
 to-report loc-and-perceived-state
-  ;returns a list containing "locA" or "locB" (based on the location of the vacuums agent) followed by "dirty" or "clear" (based on what the vacuums agent perceives)
+  ; returns a list containing "locA" or "locB" (based on the location of the vacuums agent) followed by "dirty" or "clear" (based on what the vacuums agent perceives)
   let loc ""
   let perceived-state ""
-  let coordinate [ xcor ] of vacuum 0
-  let dirtiness count [ dirts-here ] of vacuum 0
+  let coordinate [ pxcor ] of one-of vacuums
+  let dirtiness count [ dirts-here ] of one-of vacuums
 
   ifelse coordinate = 0
-  [ set loc "locA" ]
-  [ set loc "locB" ]
+    [ set loc "locA" ]
+    [ set loc "locB" ]
 
   ifelse dirtiness = 0
-  [ set perceived-state "clear" ]
-  [ set perceived-state "dirty" ]
+    [ set perceived-state "clear" ]
+    [ set perceived-state "dirty" ]
 
   report list loc perceived-state
 end
@@ -146,10 +147,17 @@ end
 to-report execute-table-action
   ; execute an action from the percepts_to_action_table based on what agent has perceived so far.
   ; returns false if "finished", otherwise returns true
-  ask vacuums
-  [
-    execute-action table:get percepts_to_action_table state
-  ]
+
+  if [ length table-agent-percepts ] of one-of vacuums = 0
+    [ report true ]
+
+  let action table:get percepts_to_action_table [ table-agent-percepts ] of one-of vacuums
+
+  if action = "left"  [ move-left ]
+  if action = "right" [ move-right ]
+  if action = "clean" [ clean ]
+  if action = "finish"  [ report false ]
+  report true
 end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -159,9 +167,32 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go-reflex-agent
-  ; ...
+  let location ""
+  let status ""
+  let coordinate [ pxcor ] of one-of vacuums
+  let dirtiness count [ dirts-here ] of one-of vacuums
+
+  ifelse coordinate = 0
+    [ set location "locA" ]
+    [ set location "locB" ]
+
+  ifelse dirtiness = 0
+    [ set status "clear" ]
+    [ set status "dirty" ]
+
+  let action reflex-vacuum-agent location status
+
+  if action = "left"  [ move-left ]
+  if action = "right" [ move-right ]
+  if action = "clean" [ clean ]
+  tick
 end
 
+to-report reflex-vacuum-agent [location status]
+  if status = "dirty" [report "clean"]
+  if location = "locA" [report "right"]
+  if location = "locB" [report "left"]
+end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -169,15 +200,43 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go-model-agent
-  ;...
+  let location ""
+  let percept ""
+  let coordinate [ pxcor ] of one-of vacuums
+  let dirtiness count [ dirts-here ] of one-of vacuums
+
+  ifelse coordinate = 0
+    [ set location "locA" ]
+    [ set location "locB" ]
+
+  ifelse dirtiness = 0
+    [ set percept "clear" ]
+    [ set percept "dirty" ]
+
+  update-state location percept
+  update-state "vacuum" percept
+
+  let action [ select-action-based-on-state ] of one-of vacuums
+
+  if action = "left"  [ move-left ]
+  if action = "right" [ move-right ]
+  if action = "clean" [ clean ]
+
+  tick
 end
 
 to update-state [location percept]
-  ;...
+  ask vacuums [ table:put state location percept ]
 end
 
 to-report select-action-based-on-state   ; the rules can be implemented as a set of ifelse statements.
-  ;...
+  ifelse table:get state "vacuum" = "dirty" [
+    report "clean"
+  ][
+    if not ((table:get state "locA") = "clear") [ report "left" ]
+    if not ((table:get state "locB") = "clear") [ report "right" ]
+  ]
+  report "NoOp"
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -28,7 +28,7 @@ A **plan** is path through state space via a series of actions.
 
 Goal tests are more or less just functions that return a boolean, at least for simple examples that aren't more about optimisation. Athough even for minimax board games, testing for a win state could be considered a goal test.
 
-**Path cost** is used to determine the optimal solution - the one with the cheapest path. **Step cost** is the cost of a specific step in the path and is written as `c(s, a, a')`.
+**Path cost** is used to determine the optimal solution - the one with the cheapest path. **Step cost** is the cost of a specific step in the path and is written as `c(s, a, s')`.
 
 A **solution** is any path from the curernt state the the goal. The optimal solution is of course the solution with the lowest path cost.
 
