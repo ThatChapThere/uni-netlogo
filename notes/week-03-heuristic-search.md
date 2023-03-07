@@ -43,7 +43,7 @@ An example of this is taking distance as the crow flies when finding the shortes
 
 This is just expanding the cheapest nodes first. Greedy is **myopic**, since the current best isn't always the best overall (although this is true of any heuristic by definition).
 
-Greedy search finds solutions quickly. I doesn't always find the best solution. It ignores the past nodes in a path. It can be subjected to false starts early on.
+Greedy search finds solutions quickly. I doesn't always find the best solution. It ignores the past nodes in a path. It can be subject to false starts early on.
 
 ## A* Search
 
