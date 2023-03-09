@@ -59,7 +59,7 @@ There are 3 conditions for this to work:
 
 A search with a h() function that is consistently higher than another h() function while still being admissible is said to be more **informed**.
 
-A* search is optimal because once an end node is found it's evaluation is its true distance. If the first end node found is not optimal, that means that its true distance is somehow less than the heuristic distance of the correct end node. Which in turn is less than the true distance of the correct node, which cannot be true by definition. This is a proof by contradiction.
+A* search is optimal because once an end node is found its evaluation is its true distance. If the first end node found is not optimal, that means that its true distance is somehow less than the heuristic distance of the correct end node. Which in turn is less than the true distance of the correct node, which cannot be true by definition. This is a proof by contradiction.
 
 Because
 
@@ -118,3 +118,7 @@ This has the problem of all states ending up on the same local maximum.
 This is also quite similar to natural selection.
 
 **Genetic Algorithms** are based on the idea of local beam search, but also generate successors from pairs of states, ie. use sexual reproduction to create new states.
+
+## Personal Notes
+
+One of the things I misunderstood was why A* is complete when you could in theory reach two nodes next to the goal where the furthest one has a better heuristic, thus reaching the end goal via a suboptimal path. This is a misunderstanding becuase the search terminates once there are no paths shorter than the current path, not once any path reaches the goal. This mistake was made in the netlogo project at first too, thanks to some shortsighted copy-pasting. This made the code work well enough to not notice any problems, but it was still subtly incorrect.

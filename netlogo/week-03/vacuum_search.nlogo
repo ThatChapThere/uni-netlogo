@@ -179,7 +179,7 @@ to plan-greedy-best-first
   stop
 end
 
-to-report greedy-best-first-search 
+to-report greedy-best-first-search
   let start_location [patch-here] of one-of vacuums ;; get the start patch
   let goal_location [patch-here] of one-of dirts    ;; get the goal patch
 
@@ -197,6 +197,7 @@ to-report greedy-best-first-search
     let node first frontiers   ; get the first node from frontiers
     let cost [path-cost] of node
     set frontiers remove-item 0 frontiers   ; remove the first node from frontiers
+    if node = goal_location [report recover-plan node ]  ;; Perform goal test
     ask node [set visited true] ;; Node has been explored/visited.
     ask node [set pcolor 108]   ;; Sets color of the patch/node. All visited nodes/patches have a pcolor of 108.
     ;show node
@@ -209,7 +210,6 @@ to-report greedy-best-first-search
           set parent node
           set path-cost cost + 1
         ] ;; set node to be the parent of valid_next_patch (so we can recover the plan).
-        if valid_next_patch = goal_location [report recover-plan goal_location ]  ;; Perform goal test
         set frontiers lput valid_next_patch frontiers  ;; insert valid_next_patch into frontiers
         ask valid_next_patch [set pcolor 78]   ;; all the patches in our frontiers stack have a pcolor of 78
       ][
@@ -236,7 +236,7 @@ to plan-uniform-cost
   stop
 end
 
-to-report uniform-cost-search 
+to-report uniform-cost-search
   let start_location [patch-here] of one-of vacuums ;; get the start patch
   let goal_location [patch-here] of one-of dirts    ;; get the goal patch
 
@@ -251,6 +251,7 @@ to-report uniform-cost-search
     let node first frontiers   ; get the first node from frontiers
     let cost [path-cost] of node
     set frontiers remove-item 0 frontiers   ; remove the first node from frontiers
+    if node = goal_location [report recover-plan node ]  ;; Perform goal test
     ask node [set visited true] ;; Node has been explored/visited.
     ask node [set pcolor 108]   ;; Sets color of the patch/node. All visited nodes/patches have a pcolor of 108.
     ;show node
@@ -263,7 +264,6 @@ to-report uniform-cost-search
           set parent node
           set path-cost cost + 1
         ] ;; set node to be the parent of valid_next_patch (so we can recover the plan).
-        if valid_next_patch = goal_location [report recover-plan goal_location ]  ;; Perform goal test
         set frontiers lput valid_next_patch frontiers  ;; insert valid_next_patch into frontiers
         ask valid_next_patch [set pcolor 78]   ;; all the patches in our frontiers stack have a pcolor of 78
       ][
@@ -290,7 +290,7 @@ to plan-a-star
   stop
 end
 
-to-report a-star-search 
+to-report a-star-search
   let start_location [patch-here] of one-of vacuums ;; get the start patch
   let goal_location [patch-here] of one-of dirts    ;; get the goal patch
 
@@ -306,6 +306,7 @@ to-report a-star-search
       [distance goal_location + path-cost] of f2 ]
         frontiers; sort the frontiers
     let node first frontiers   ; get the first node from frontiers
+    if node = goal_location [report recover-plan node ]  ;; Perform goal test
     let cost [path-cost] of node
     set frontiers remove-item 0 frontiers   ; remove the first node from frontiers
     ask node [set visited true] ;; Node has been explored/visited.
@@ -320,15 +321,16 @@ to-report a-star-search
           set parent node
           set path-cost cost + 1
         ] ;; set node to be the parent of valid_next_patch (so we can recover the plan).
-        if valid_next_patch = goal_location [report recover-plan goal_location ]  ;; Perform goal test
         set frontiers lput valid_next_patch frontiers  ;; insert valid_next_patch into frontiers
         ask valid_next_patch [set pcolor 78]   ;; all the patches in our frontiers stack have a pcolor of 78
       ][
-        if false and (member? valid_next_patch frontiers) and ([path-cost] of valid_next_patch < cost + 1) [
+        if (member? valid_next_patch frontiers) and ([path-cost] of valid_next_patch < cost + 1) [
           ask valid_next_patch [
             set parent node
             set path-cost cost + 1
           ] ;; set node to be the new parent of valid_next_patch.
+          ; this only exists in the pseudocode to handle cases where a heuristic is admissable but not consistent
+          ; for this example, which is consistent, this code is unnecessary
         ]
       ]
     ]
